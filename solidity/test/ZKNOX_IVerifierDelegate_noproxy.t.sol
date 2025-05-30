@@ -101,8 +101,14 @@ contract SignDelegationTest is Test {
         address iVerifier_algo = address(falcon);
         address iPublicKey = DeployPolynomial(salty, pkc);
 
-        Verifier = new ZKNOX_Verifier(iAlgoID, iVerifier_algo, iPublicKey);
+        Verifier = new ZKNOX_Verifier();
         console.log("param Verifier:", Verifier.algoID(), Verifier.CoreAddress(), Verifier.authorizedPublicKey());
+
+        // Alice signs a delegation allowing `implementation` to execute transactions on her behalf.
+        Vm.SignedDelegation memory signedDelegation = vm.signDelegation(address(Verifier), ALICE_PK);
+
+        vm.attachDelegation(signedDelegation);
+        ZKNOX_Verifier(ALICE_ADDRESS).initialize(iAlgoID, iVerifier_algo, iPublicKey);
 
         // Deploy an ERC-20 token contract where Alice is the minter.
         token = new ERC20(ALICE_ADDRESS);
@@ -133,16 +139,6 @@ contract SignDelegationTest is Test {
         //calls[0] = SimpleDelegateContract.Call({to: address(token), data: data, value: 0});
 
         vm.startBroadcast(ALICE_PK);
-        // Alice signs a delegation allowing `implementation` to execute transactions on her behalf.
-        Vm.SignedDelegation memory signedDelegation = vm.signDelegation(address(Verifier), ALICE_PK);
-
-        // Set Alice's storage before calling Verifier
-        
-        vm.store(ALICE_ADDRESS, bytes32(uint256(0)), bytes32(uint256(uint160(Verifier.authorizedPublicKey()))));
-        vm.store(ALICE_ADDRESS, bytes32(uint256(1)), bytes32(uint256(uint160(Verifier.CoreAddress()))));
-        vm.store(ALICE_ADDRESS, bytes32(uint256(2)), bytes32(Verifier.algoID()));
-        vm.store(ALICE_ADDRESS, bytes32(uint256(3)), bytes32(Verifier.nonce()));
-        
 
         // Debug: Print stored values to verify correct setup
         console.log(
@@ -159,7 +155,6 @@ contract SignDelegationTest is Test {
         vm.stopBroadcast();
 
         vm.broadcast(BOB_PK);
-        vm.attachDelegation(signedDelegation);
         bytes memory code = address(ALICE_ADDRESS).code; //this shall be ef0100, followed by adress
 
         console.log("Verifier address:%x", uint256(uint160(address(Verifier))));

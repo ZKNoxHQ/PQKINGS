@@ -53,7 +53,10 @@ contract ZKNOX_Verifier {
     uint256 public nonce;
 
     //input are AlgoIdentifier, Signature verification address, publickey storing contract
-    constructor(uint256 iAlgoID, address iCore, address iPublicKey) {
+    constructor() {}
+
+    function initialize(uint256 iAlgoID, address iCore, address iPublicKey) external {
+        require(CoreAddress == address(0), "already initialized");
         CoreAddress = iCore; // Address of contract of Signature verification (FALCON, DILITHIUM)
         algoID = iAlgoID;
         authorizedPublicKey = iPublicKey;
