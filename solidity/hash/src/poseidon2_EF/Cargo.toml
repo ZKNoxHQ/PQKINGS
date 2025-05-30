@@ -1,0 +1,13 @@
+[package]
+   name = "poseidon2_wrapper"
+   version = "0.1.0"
+   edition = "2021"
+
+[lib]
+    name = "poseidon2_wrapper"
+    crate-type = ["cdylib"]
+
+   [dependencies]
+   
+   zkhash = { git = "https://github.com/HorizenLabs/poseidon2.git", branch = "main" }
+   ark-ff = "0.4" # Make sure this version is compatible with poseidon2

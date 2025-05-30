@@ -1,0 +1,17 @@
+[package]
+ name = "poseidon2_wrapper"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "poseidon2_wrapper"
+crate-type = ["cdylib"]
+
+[dependencies]
+p3-baby-bear = { git = "https://github.com/Plonky3/Plonky3.git"} # Or a specific commit/tag
+p3-poseidon2 = { git = "https://github.com/Plonky3/Plonky3.git" } # Or a specific commit/tag
+p3-field = { git = "https://github.com/Plonky3/Plonky3.git" } # Or a specific commit/tag
+p3-monty-31 = { git = "https://github.com/Plonky3/Plonky3.git" } 
+p3-symmetric={ git = "https://github.com/Plonky3/Plonky3.git" } 
+rand_xoshiro = "0.7.0"
+rand = "0.9.1"
