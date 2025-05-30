@@ -102,13 +102,14 @@ contract SignDelegationTest is Test {
         address iPublicKey = DeployPolynomial(salty, pkc);
 
         Verifier = new ZKNOX_Verifier();
-        console.log("param Verifier:", Verifier.algoID(), Verifier.CoreAddress(), Verifier.authorizedPublicKey());
 
         // Alice signs a delegation allowing `implementation` to execute transactions on her behalf.
         Vm.SignedDelegation memory signedDelegation = vm.signDelegation(address(Verifier), ALICE_PK);
 
         vm.attachDelegation(signedDelegation);
-        ZKNOX_Verifier(ALICE_ADDRESS).initialize(iAlgoID, iVerifier_algo, iPublicKey);
+        ZKNOX_Verifier aliceVerifier = ZKNOX_Verifier(ALICE_ADDRESS);
+        aliceVerifier.initialize(iAlgoID, iVerifier_algo, iPublicKey);
+        console.log("param Verifier:", aliceVerifier.algoID(), aliceVerifier.CoreAddress(), aliceVerifier.authorizedPublicKey());
 
         // Deploy an ERC-20 token contract where Alice is the minter.
         token = new ERC20(ALICE_ADDRESS);
