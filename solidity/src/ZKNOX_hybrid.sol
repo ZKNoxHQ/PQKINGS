@@ -48,6 +48,7 @@ import "./ZKNOX_falcon_core.sol";
 //choose the XOF to use here
 import "./ZKNOX_HashToPoint.sol";
 
+import "./ZKNOX_falcon_encodings.sol";
 
 /// @notice Contract designed for being delegated to by EOAs to authorize a IVerifier key to transact on their behalf.
 contract ZKNOX_HybridVerifier {
@@ -106,18 +107,36 @@ contract ZKNOX_HybridVerifier {
         require(success, "failing executing the cal");
     }
 
-    function isValid_HybridSignature(  
-        address to,
-        bytes memory data,
-        uint256 val,
+    //digest, v,r,s are input to ecrecover, sm is the falcon signature
+    function isValid(  
+        bytes32 digest,
         uint8 v,
         bytes32 r,
         bytes32 s,
-        bytes memory salt, // compacted FALCONsignature salt part
-        uint256[] memory s2 // compacted FALCON signature s2 part))
+        bytes memory sm // the signature in the NIST KAT format, as output by test_falcon.js
         ) public returns (bool)
         {
-         bytes32 digest = keccak256(abi.encode(nonce++, to, data, val));
+             uint256 slen = (uint256(uint8(sm[0])) << 8) + uint256(uint8(sm[1]));
+            uint256 mlen = sm.length - slen - 42;
+
+            bytes memory message;
+            bytes memory salt = new bytes(40);
+
+        for (uint i = 0; i < 40; i++) {
+          salt[i] = sm[i + 2];
+         }
+        message = new bytes(mlen);
+        for (uint256 j = 0; j < mlen; j++) {
+          message[j] = sm[j + 42];
+        }
+
+         if (sm[2 + 40 + mlen] != 0x29) {
+             revert("wrong header sigbytes");
+         }
+
+        uint256[] memory s2 = _ZKNOX_NTT_Compact(_decompress_sig(sm, 2 + 40 + mlen + 1));
+
+
          ISigVerifier Core = ISigVerifier(CoreAddress);
 
          uint256[] memory nttpk;

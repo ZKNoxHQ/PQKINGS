@@ -116,3 +116,4 @@ function DeployPolynomial(bytes32 salt, uint256[] memory polynomial) returns (ad
     }
     require(a_polynomial != address(0), "Deployment failed");
 }
+
