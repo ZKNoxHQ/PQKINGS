@@ -105,7 +105,6 @@ contract ZKNOX_SimpleHybrid7702 is Simple7702Account {
 
 
     //digest, v,r,s are input to ecrecover, sm is the falcon signature
-    //TODO : do not revert - kept for hackathon
     function isValid(  
         bytes32 digest,
         uint8 v,
@@ -114,7 +113,7 @@ contract ZKNOX_SimpleHybrid7702 is Simple7702Account {
         bytes memory sm // the signature in the NIST KAT format, as output by test_falcon.js
         ) public returns (bool)
         {
-             uint256 slen = (uint256(uint8(sm[0])) << 8) + uint256(uint8(sm[1]));
+            uint256 slen = (uint256(uint8(sm[0])) << 8) + uint256(uint8(sm[1]));
             uint256 mlen = sm.length - slen - 42;
 
             bytes memory message;
@@ -139,10 +138,16 @@ contract ZKNOX_SimpleHybrid7702 is Simple7702Account {
          uint256[] memory nttpk;
          address recovered = ecrecover(digest, v, r, s);
 
-         require(getStorage().authorized_PQPublicKey != address(0), "authorizedPublicKey null");
-         require(recovered==getStorage().authorized_ECDSA, "Invalid ECDSA signature");
+         if (getStorage().authorized_PQPublicKey == address(0)) {
+            return false;
+         }
+         if (recovered != getStorage().authorized_ECDSA) {
+            return false;
+         }
          nttpk = Core.GetPublicKey(getStorage().authorized_PQPublicKey);
-         require(Core.verify(abi.encodePacked(digest), salt, s2, nttpk), "Invalid FALCON");
+         if (!Core.verify(abi.encodePacked(digest), salt, s2, nttpk)) {
+            return false;
+         }
 
          return true;
         }
