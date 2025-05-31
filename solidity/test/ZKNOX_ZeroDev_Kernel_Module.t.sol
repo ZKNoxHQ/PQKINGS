@@ -2,39 +2,51 @@ pragma solidity ^0.8.25;
 
 import "../lib/account-abstraction/contracts/core/EntryPoint.sol";
 
+import {MockValidator} from "../lib/kernel/test/mock/MockValidator.sol";
+
 import "../src/ZKNOX_falcon.sol";
 import "../src/ZKNOX_falcon_encodings.sol";
-
-import {Kernel} from "../lib/kernel/src/Kernel.sol";
-import {ValidationMode, ValidationType} from "../lib/kernel/src/types/Types.sol";
+import "forge-std/Vm.sol";
+import {IEntryPoint as IEntryPointZeroDev} from "../lib/kernel/src/interfaces/IEntryPoint.sol";
 import {IValidator, IHook} from "../lib/kernel/src/interfaces/IERC7579Modules.sol";
-import {ValidatorLib} from "../lib/kernel/src/utils/ValidationTypeLib.sol";
 import {InstallValidatorDataFormat, InstallFallbackDataFormat} from "../lib/kernel/src/types/Structs.sol";
+import {Kernel} from "../lib/kernel/src/Kernel.sol";
+
 import {MODULE_TYPE_VALIDATOR, MODULE_TYPE_FALLBACK, HOOK_MODULE_NOT_INSTALLED, VALIDATION_TYPE_VALIDATOR, VALIDATION_MODE_DEFAULT, CALLTYPE_SINGLE} from "../lib/kernel/src/types/Constants.sol";
+import {Test, console} from "forge-std/Test.sol";
+
+import {ValidationMode, ValidationType, ValidationId} from "../lib/kernel/src/types/Types.sol";
+import {ValidatorLib} from "../lib/kernel/src/utils/ValidationTypeLib.sol";
 import {ZKNOX_ZeroDev_Kernel_Module} from "../src/ZKNOX_ZeroDev_Kernel_Module.sol";
 
-import {Test, console} from "forge-std/Test.sol";
-import "forge-std/Vm.sol";
-
-import {IEntryPoint as IEntryPointZeroDev} from "../lib/kernel/src/interfaces/IEntryPoint.sol";
+uint256 constant ALICE_PK = 0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d;
+address payable constant ALICE_ADDRESS = payable(0x70997970C51812dc3A010C7d01b50e0d17dc79C8);
 
 contract ZKNOX_ZeroDev_Kernel_Module_Test is Test {
     ZKNOX_ZeroDev_Kernel_Module public module;
-    Kernel public kernel;
+    Kernel public kernelImplementation;
+    Kernel public kernelAlice;
     EntryPoint public entryPoint;
 
     function setUp() external {
+        bytes memory bytecode;
         module = new ZKNOX_ZeroDev_Kernel_Module();
+
         entryPoint = new EntryPoint();
-        kernel = new Kernel(IEntryPointZeroDev(address(entryPoint)));
-        vm.deal(address(kernel), 10 ether);
+        kernelImplementation = new Kernel(IEntryPointZeroDev(address(entryPoint)));
+        kernelAlice = Kernel(ALICE_ADDRESS);
+
+        // Alice signs a delegation allowing `implementation` to execute transactions on her behalf.
+        vm.deal(ALICE_ADDRESS, 10 ether);
+        Vm.SignedDelegation memory signedDelegation = vm.signDelegation(address(kernelImplementation), ALICE_PK);
+        vm.attachDelegation(signedDelegation);
+        vm.startBroadcast(ALICE_PK);
+        module.helloWorld();
+        vm.stopBroadcast();
+
         bytes memory selectorData = abi.encodePacked(ZKNOX_ZeroDev_Kernel_Module.helloWorld.selector);
         InstallValidatorDataFormat memory data = InstallValidatorDataFormat(hex"", hex"", selectorData);
-//        not needed without 7702
-//        bytes[] memory configs = new bytes[](0);
-//        kernel.initialize(
-//            ValidatorLib.validatorToIdentifier(IValidator(address(1))), IHook(address(0)), hex"", hex"", configs
-//        );
+        bytes[] memory configs = new bytes[](0);
 
         // Copied from ZKNOX_hybrid.t.sol
         ZKNOX_falcon falcon = new ZKNOX_falcon();
@@ -46,8 +58,8 @@ contract ZKNOX_ZeroDev_Kernel_Module_Test is Test {
         address ECDSAPublicKey=0x24D63ffC083dB45d713F970565AA322c71A6e79c;
         module.initialize(iAlgoID, iVerifier_algo, ECDSAPublicKey, iPQPublicKey);
 
-        vm.startBroadcast(address(kernel));
-        kernel.installModule(MODULE_TYPE_VALIDATOR, address(module),
+        vm.startBroadcast(address(kernelAlice));
+        kernelAlice.installModule(MODULE_TYPE_VALIDATOR, address(module),
             abi.encodePacked(HOOK_MODULE_NOT_INSTALLED,
                 abi.encode(data.validatorData, data.hookData, data.selectorData)
             )
@@ -55,7 +67,7 @@ contract ZKNOX_ZeroDev_Kernel_Module_Test is Test {
 
         // TODO: we don't need it if we don't have any custom function
         InstallFallbackDataFormat memory fallbackData = InstallFallbackDataFormat(selectorData, hex"");
-        kernel.installModule(MODULE_TYPE_FALLBACK, address(module),
+        kernelAlice.installModule(MODULE_TYPE_FALLBACK, address(module),
             abi.encodePacked(
                 selectorData,
                 HOOK_MODULE_NOT_INSTALLED,
@@ -77,7 +89,7 @@ contract ZKNOX_ZeroDev_Kernel_Module_Test is Test {
 
         /*** HARD-CODED SIGNATURE END ***/
         PackedUserOperation memory op = PackedUserOperation({
-            sender: address(kernel),
+            sender: address(kernelAlice),
             nonce: encodeNonce(),
             initCode: abi.encodePacked(hex""),
             callData : abi.encodePacked(ZKNOX_ZeroDev_Kernel_Module.helloWorld.selector),
@@ -100,6 +112,6 @@ contract ZKNOX_ZeroDev_Kernel_Module_Test is Test {
             bytes20(address(module)),
             0 // parallel key
         );
-        return entryPoint.getNonce(address(kernel), nonceKey);
+        return entryPoint.getNonce(address(kernelAlice), nonceKey);
     }
 }

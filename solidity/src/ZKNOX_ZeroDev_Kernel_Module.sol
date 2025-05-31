@@ -117,6 +117,10 @@ contract ZKNOX_ZeroDev_Kernel_Module is IValidator {
     ) internal virtual returns (uint256 validationData) {
         (uint8 v, bytes32 r, bytes32 s, bytes memory sm) = abi.decode(userOp.signature, (uint8, bytes32, bytes32, bytes));
         bytes32 h = 0x50b2c43fd39106bafbba0da34fc430e1f91e3c96ea2acee2bc34119f92b37750;//the hash signed by FALCON NIST and ECDSA, provided by etherjs for ECDSA and test_falcon.js for falcon
+
+//        TODO: the plan is to use EIP-191 message hash as input of both ECDSA and Falcon
+//        bytes message = abi.encodePacked("\x19Ethereum Signed Message:\n", userOpHash);
+//        bytes32 h1 = keccak256(message);
 //        return isValid(userOpHash, v, r, s, sm) ? SIG_VALIDATION_SUCCESS_UINT : SIG_VALIDATION_FAILED_UINT;
         return isValid(h, v, r, s, sm) ? SIG_VALIDATION_SUCCESS_UINT : SIG_VALIDATION_FAILED_UINT;
     }
