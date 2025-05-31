@@ -13,6 +13,8 @@ if (args.length < 2) {
 const deterministicSeedInput = args[0];
 const message = args[1]; // The message is now taken directly from the second argument
 
+
+
 // Validate seed length (must be 32 bytes = 64 hex characters)
 if (deterministicSeedInput.length !== 64 || !/^[0-9a-fA-F]{64}$/.test(deterministicSeedInput)) {
     console.error("Error: Seed must be a 32-byte (64 hex characters) hexadecimal string.");
@@ -31,6 +33,8 @@ async function signMessage() {
 
     const messageHash = hashMessage(message);
     const signature = await wallet.signMessage(message);
+    const signatureObject= wallet.signingKey.sign(messageHash);
+    const signature2 = signatureObject.serialized;
     const recoveredAddress = recoverAddress(messageHash, signature);
 
     // Helper to parse the signature
@@ -57,6 +61,8 @@ async function signMessage() {
     console.log("Wallet Address:  ", wallet.address);
     console.log("Message Hash:    ", messageHash);
     console.log("Signature:       ", signature);
+    console.log("Signature:       ", signature2);
+    
     console.log("r (signature):   ", sig.r);
     console.log("s (signature):   ", sig.s);
     console.log("v (signature):   ", sig.v);
