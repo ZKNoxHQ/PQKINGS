@@ -1,6 +1,10 @@
 # PQKINGS
 
-![image](https://github.com/user-attachments/assets/9cc3feef-405e-4003-afbc-5d7730ff0326)
+<p align="center">
+<img src="[../../../../../images/pectra.png](https://github.com/user-attachments/assets/9cc3feef-405e-4003-afbc-5d7730ff0326)" alt="drawing" class="center" width="350"/>
+<p align="center">
+<small>(The PQ KING)</small>
+
 
 ETHPRAGUE 7702 Hybrid Account ( Legacy + Post Quantum)
 
