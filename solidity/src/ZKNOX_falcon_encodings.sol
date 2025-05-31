@@ -189,3 +189,24 @@ function decompress_KAT(bytes memory pk, bytes memory sm)
 
     return (h, s2, salt, message);
 }
+
+
+//deploy a polynomial onchain from the NIST encoding
+function DeployPolynomial_NIST(bytes32 salt, bytes memory pk) returns (address a_polynomial) {
+
+     /*
+	 * Decode public key.
+	 */
+    if (pk[0] != 0x09) {
+        revert("wrong public key encoding");
+    }
+    uint256[] memory polynomial = decompress_kpub(pk, 1);
+    
+    bytes memory bytecode_pol = abi.encodePacked(polynomial);
+
+    bytecode_pol = abi.encodePacked(hex"63", uint32(bytecode_pol.length), hex"80600E6000396000F3", bytecode_pol);
+    assembly {
+        a_polynomial := create2(0, add(bytecode_pol, 0x20), mload(bytecode_pol), salt)
+    }
+    require(a_polynomial != address(0), "Deployment failed");
+}

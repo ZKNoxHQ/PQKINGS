@@ -147,15 +147,7 @@ function test_vector_prague() public{
 
         (kpub, s2, salt, message) = decompress_KAT(pk, sm);
 
-        uint256[] memory hashed = hashToPointNIST(salt, message);
-
-        //Display_HexArray(" hashToPoint", hashed);
-
-        //Display_HexArray(" public key canonical form", kpub);
-        //Display_HexArray("sig canonical form", s2);
-
-        //s2=Swap(s2);
-        //kpub=Swap(kpub);
+       
 
         uint256[] memory ntth = _ZKNOX_NTT_Compact(_ZKNOX_NTTFW_vectorized(kpub));
 

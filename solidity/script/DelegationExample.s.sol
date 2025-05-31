@@ -105,7 +105,8 @@ contract SignDelegationTest is BaseScript {
         address iVerifier_algo = address(falcon);
         address iPublicKey = DeployPolynomial(salty, pkc);
 
-        Verifier = new ZKNOX_Verifier(iAlgoID, iVerifier_algo, iPublicKey);
+        Verifier = new ZKNOX_Verifier();
+        Verifier.initialize(iAlgoID, iVerifier_algo, iPublicKey);
         console.log("param Verifier:", Verifier.algoID(), Verifier.CoreAddress(), Verifier.authorizedPublicKey());
 
         // Deploy an ERC-20 token contract where Alice is the minter.

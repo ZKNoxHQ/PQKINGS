@@ -7,8 +7,12 @@ Module().then((falcon) => {
   const sigMaxLen = 690;
   const seedLen= 32;
 
-  const message = Buffer.from("hello from ZKNOX!");
   const seed=Buffer.from("12345678123456781234567812345679")
+
+  const hexString = "0x50b2c43fd39106bafbba0da34fc430e1f91e3c96ea2acee2bc34119f92b37750";
+
+ // Remove the "0x" prefix before passing to Buffer.from
+ const message = Buffer.from(hexString.slice(2), "hex");
 
   // Allocate memory
   const pkPtr = falcon._malloc(pkLen);
