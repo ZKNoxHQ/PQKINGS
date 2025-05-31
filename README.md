@@ -60,7 +60,7 @@ The wristband communicates with your laptop via NFC.
 
 The JavaScript implementation of the FALCON algorithm, generated from NIST code using Emscripten, is crucial for off-chain post-quantum signing.
 
-  * **Location:** You'll find the generated JavaScript file at `solidity/falcon/test_falcon.js`.
+  * **Location:**  `solidity/falcon/deterministic_falcon_sign.js`.
 
 ### **3. Solidity Smart Contracts**
 
