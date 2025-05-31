@@ -53,7 +53,7 @@ To interact with this demonstration and set up your environment:
 
 The wristband communicates with your laptop via NFC.
 
-  * **HALO Library:** Install the necessary `HALO` library on your laptop.
+  * **HALO Library:** Install the necessary `HALO` [library](https://github.com/arx-research/libhalo) on your laptop.
   * **NFC Application:** Use `TagInfo` (or similar NFC communication software) to establish communication with the wristband.
 
 ### **2. Post-Quantum FALCON JavaScript**
