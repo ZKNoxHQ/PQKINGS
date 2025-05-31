@@ -22,6 +22,7 @@ source ./emsdk_env.sh
  ```bash
  make js
  node test_falcon.js
+node node deterministic_falcon_sign.js 3132333435363738313233343536373831323334353637383132333435363739 50b2c43fd39106bafbba0da34fc430e1f91e3c96ea2acee2bc34119f92b37750 --output-signature-only
  ```
 A reference example of use (key generation, sign and verify) is provided in test_falcon.js, it corresponds to the solidity test vector.
 
