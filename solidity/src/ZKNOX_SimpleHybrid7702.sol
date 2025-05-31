@@ -95,10 +95,14 @@ contract ZKNOX_SimpleHybrid7702 is Simple7702Account {
         getStorage().authorized_PQPublicKey = iPublicPQKey;
     }
 
+    // TODO : replace by proper encoding
     function _validateSignature(
         PackedUserOperation calldata userOp,
         bytes32 userOpHash
     ) internal virtual override returns (uint256 validationData) {
+        if ((userOp.signature[0] == 0xff) && (userOp.signature[1] == 0xff)) {
+            return SIG_VALIDATION_FAILED;
+        }
         (uint8 v, bytes32 r, bytes32 s, bytes memory sm) = abi.decode(userOp.signature, (uint8, bytes32, bytes32, bytes));
         return isValid(userOpHash, v, r, s, sm) ? SIG_VALIDATION_SUCCESS : SIG_VALIDATION_FAILED;
     }    
