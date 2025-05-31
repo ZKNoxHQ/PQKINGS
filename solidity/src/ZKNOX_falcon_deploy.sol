@@ -38,6 +38,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.25;
 
+
+
 function _Swap16(uint256 inw) pure returns (uint256 outw) {
     for (uint256 i = 0; i < 256; i += 16) {
         outw ^= (inw >> (240 - i) & 0xffff) << (i);
@@ -116,3 +118,4 @@ function DeployPolynomial(bytes32 salt, uint256[] memory polynomial) returns (ad
     }
     require(a_polynomial != address(0), "Deployment failed");
 }
+

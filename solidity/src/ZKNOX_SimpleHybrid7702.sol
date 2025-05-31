@@ -30,81 +30,132 @@
 ///* License: This software is licensed under MIT License
 ///* This Code may be reused including this header, license and copyright notice.
 ///* See LICENSE file at the root folder of the project.
-///* FILE: ZKNOX_delegate_noproxy.sol
-///* Description: A contract designed to be delegated to a 7702 authorization wihtout proxy
+///* FILE: ZKNOX_falcon.sol
+///* Description: Compute NIST compliant falcon verification
 /**
  *
  */
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.25;
 
 import "./ZKNOX_common.sol";
 import "./ZKNOX_IVerifier.sol";
 
+import "./ZKNOX_falcon_utils.sol";
+import {ZKNOX_NTT} from "./ZKNOX_NTT.sol";
+import "./ZKNOX_falcon_core.sol";
+
+//choose the XOF to use here
+import "./ZKNOX_HashToPoint.sol";
+import "./ZKNOX_falcon_encodings.sol";
+
+import "../lib/account-abstraction/contracts/accounts/Simple7702Account.sol";
+
 /// @notice Contract designed for being delegated to by EOAs to authorize a IVerifier key to transact on their behalf.
-contract ZKNOX_Verifier {
-    /// @notice Address of the contract storing the public key
-    address public authorizedPublicKey;
-    /// @notice Address of the verification contract logic
+contract ZKNOX_SimpleHybrid7702 is Simple7702Account {
 
-    address public CoreAddress; //adress of the core verifier (FALCON, DILITHIUM, etc.), shall be the adress of a ISigVerifier
-    uint256 public algoID;
+    error AlreadyInitialized();
+    error InvalidCaller();
 
-    /// @notice Internal nonce used for replay protection, must be tracked and included into prehashed message.
-    uint256 public nonce;
+    bytes32 constant SIMPLEHYBRID7702_STORAGE_POSITION = keccak256("zknox.hybrid.7702");
+
+    struct Storage {
+        //derived address from ecdsa
+        address authorized_ECDSA;
+   
+        /// @notice Address of the contract storing the post quantum public key
+        address authorized_PQPublicKey;
+        /// @notice Address of the verification contract logic
+
+        address CoreAddress; //address of the core verifier (FALCON, DILITHIUM, etc.), shall be the address of a ISigVerifier
+        uint256 algoID;
+    }
+
+    function getStorage() internal pure returns (Storage storage ds) {
+        bytes32 position = SIMPLEHYBRID7702_STORAGE_POSITION;
+        assembly {
+            ds.slot := position
+        }
+    }
 
     constructor() {}
     
     //input are AlgoIdentifier, Signature verification address, publickey storing contract
-    function initialize(uint256 iAlgoID, address iCore, address iPublicKey) external {
-        require(CoreAddress == address(0), "already initialized");
-        CoreAddress = iCore; // Address of contract of Signature verification (FALCON, DILITHIUM)
-        algoID = iAlgoID;
-        authorizedPublicKey = iPublicKey;
-        nonce = 0;
+    function initialize(uint256 iAlgoID, address iCore, address iAuthorized_ECDSA, address iPublicPQKey) external {
+        if (msg.sender != address(entryPoint().senderCreator())) {
+            revert InvalidCaller();
+        }
+        if (getStorage().CoreAddress != address(0)) {
+            revert AlreadyInitialized();
+        }
+       
+        getStorage().authorized_ECDSA=iAuthorized_ECDSA;  //derived address from ecdsa secp256K1
+        getStorage().CoreAddress = iCore; // Address of contract of Signature verification (FALCON, DILITHIUM)
+        getStorage().algoID = iAlgoID;
+        getStorage().authorized_PQPublicKey = iPublicPQKey;
     }
 
-    /// @notice Main entrypoint for authorized transactions. Accepts transaction parameters (to, data, value) and a musig2 signature.
-    function transact(
-        address to,
-        bytes memory data,
-        uint256 val,
-        bytes memory salt, // compacted signature salt part
-        uint256[] memory s2 // compacted signature s2 part)
-    ) external payable {
-        bytes32 digest = keccak256(abi.encode(nonce++, to, data, val));
-        ISigVerifier Core = ISigVerifier(CoreAddress);
+    function _validateSignature(
+        PackedUserOperation calldata userOp,
+        bytes32 userOpHash
+    ) internal virtual override returns (uint256 validationData) {
+        (uint8 v, bytes32 r, bytes32 s, bytes memory sm) = abi.decode(userOp.signature, (uint8, bytes32, bytes32, bytes));
+        return isValid(userOpHash, v, r, s, sm) ? SIG_VALIDATION_SUCCESS : SIG_VALIDATION_FAILED;
+    }    
 
-        uint256[] memory nttpk;
-        require(authorizedPublicKey != address(0), "authorizedPublicKey null");
 
-        nttpk = Core.GetPublicKey(authorizedPublicKey);
-        require(nttpk[0]!=0, "wrong extraction");
-        //require(Core.verify(abi.encodePacked(digest), salt, s2, nttpk), "Invalid signature");
+    //digest, v,r,s are input to ecrecover, sm is the falcon signature
+    //TODO : do not revert - kept for hackathon
+    function isValid(  
+        bytes32 digest,
+        uint8 v,
+        bytes32 r,
+        bytes32 s,
+        bytes memory sm // the signature in the NIST KAT format, as output by test_falcon.js
+        ) public returns (bool)
+        {
+             uint256 slen = (uint256(uint8(sm[0])) << 8) + uint256(uint8(sm[1]));
+            uint256 mlen = sm.length - slen - 42;
 
-        (bool success,) = to.call{value: val}(data);
+            bytes memory message;
+            bytes memory salt = new bytes(40);
 
-        require(success, "failing executing the cal");
-    }
+        for (uint i = 0; i < 40; i++) {
+          salt[i] = sm[i + 2];
+         }
+        message = new bytes(mlen);
+        for (uint256 j = 0; j < mlen; j++) {
+          message[j] = sm[j + 42];
+        }
 
-    //debug function for now: todo, remove when transact successfully tested
-    function isValid(
-        bytes memory data,
-        bytes memory salt, // compacted signature salt part
-        uint256[] memory s2
-    ) external payable returns (bool) {
-        ISigVerifier Core = ISigVerifier(CoreAddress);
-        uint256[] memory nttpk;
-        nttpk = Core.GetPublicKey(authorizedPublicKey);
-        return Core.verify(data, salt, s2, nttpk);
-    }
+         if (sm[2 + 40 + mlen] != 0x29) {
+             revert("wrong header sigbytes");
+         }
+
+        uint256[] memory s2 =_ZKNOX_NTT_Compact((_decompress_sig(sm, 2 + 40 + mlen + 1)));
+
+         ISigVerifier Core = ISigVerifier(getStorage().CoreAddress);
+
+         uint256[] memory nttpk;
+         address recovered = ecrecover(digest, v, r, s);
+
+         require(getStorage().authorized_PQPublicKey != address(0), "authorizedPublicKey null");
+         require(recovered==getStorage().authorized_ECDSA, "Invalid ECDSA signature");
+         nttpk = Core.GetPublicKey(getStorage().authorized_PQPublicKey);
+         require(Core.verify(abi.encodePacked(digest), salt, s2, nttpk), "Invalid FALCON");
+
+         return true;
+        }
+    
+
 
     function GetPublicKey() public view returns (uint256[] memory res) {
-        ISigVerifier Core = ISigVerifier(CoreAddress);
-        res = Core.GetPublicKey(authorizedPublicKey);
+        ISigVerifier Core = ISigVerifier(getStorage().CoreAddress);
+        res = Core.GetPublicKey(getStorage().authorized_PQPublicKey);
     }
 
     function GetStorage() public view returns (address, address) {
-        return (CoreAddress, authorizedPublicKey);
+        return (getStorage().CoreAddress, getStorage().authorized_PQPublicKey);
     }
     //receive() external payable {}
 } //end contract
