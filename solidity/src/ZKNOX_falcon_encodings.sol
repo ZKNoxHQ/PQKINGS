@@ -36,7 +36,9 @@
  *
  */
 import "./ZKNOX_falcon_utils.sol";
-//import {Test, console} from "forge-std/Test.sol";
+
+import "./ZKNOX_NTT.sol";
+import "./ZKNOX_NTT_falcon.sol";
 
 uint256 constant max_in_len = 666;
 
@@ -201,7 +203,8 @@ function DeployPolynomial_NIST(bytes32 salt, bytes memory pk) returns (address a
         revert("wrong public key encoding");
     }
     uint256[] memory polynomial = decompress_kpub(pk, 1);
-    
+    polynomial=_ZKNOX_NTT_Compact(_ZKNOX_NTTFW_vectorized(polynomial));
+
     bytes memory bytecode_pol = abi.encodePacked(polynomial);
 
     bytecode_pol = abi.encodePacked(hex"63", uint32(bytecode_pol.length), hex"80600E6000396000F3", bytecode_pol);

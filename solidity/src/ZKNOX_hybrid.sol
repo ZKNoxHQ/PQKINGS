@@ -47,7 +47,6 @@ import "./ZKNOX_falcon_core.sol";
 
 //choose the XOF to use here
 import "./ZKNOX_HashToPoint.sol";
-
 import "./ZKNOX_falcon_encodings.sol";
 
 /// @notice Contract designed for being delegated to by EOAs to authorize a IVerifier key to transact on their behalf.
@@ -78,35 +77,6 @@ contract ZKNOX_HybridVerifier {
         nonce = 0;
     }
 
-    /// @notice Main entrypoint for authorized transactions. Accepts transaction parameters (to, data, value) and a musig2 signature.
-    function transact(
-        address to,
-        bytes memory data,
-        uint256 val,
-       
-        uint8 v,
-        bytes32 r,
-        bytes32 s,
-        bytes memory salt, // compacted FALCONsignature salt part
-        uint256[] memory s2 // compacted FALCON signature s2 part)
-    ) external payable {
-        bytes32 digest = keccak256(abi.encode(nonce++, to, data, val));
-        ISigVerifier Core = ISigVerifier(CoreAddress);
-
-        uint256[] memory nttpk;
-        address recovered = ecrecover(digest, v, r, s);
-
-
-        require(authorized_PQPublicKey != address(0), "authorizedPublicKey null");
-        //require(recovered==authorized_ECDSA, "Invalid ECDSA signature");
-        nttpk = Core.GetPublicKey(authorized_PQPublicKey);
-        require(Core.verify(abi.encodePacked(digest), salt, s2, nttpk), "Invalid FALCON");
-
-        (bool success,) = to.call{value: val}(data);
-
-        require(success, "failing executing the cal");
-    }
-
     //digest, v,r,s are input to ecrecover, sm is the falcon signature
     function isValid(  
         bytes32 digest,
@@ -134,17 +104,15 @@ contract ZKNOX_HybridVerifier {
              revert("wrong header sigbytes");
          }
 
-        uint256[] memory s2 = _ZKNOX_NTT_Compact(_decompress_sig(sm, 2 + 40 + mlen + 1));
-
+        uint256[] memory s2 =_ZKNOX_NTT_Compact((_decompress_sig(sm, 2 + 40 + mlen + 1)));
 
          ISigVerifier Core = ISigVerifier(CoreAddress);
 
          uint256[] memory nttpk;
          address recovered = ecrecover(digest, v, r, s);
 
-
          require(authorized_PQPublicKey != address(0), "authorizedPublicKey null");
-         //require(recovered==authorized_ECDSA, "Invalid ECDSA signature");
+         require(recovered==authorized_ECDSA, "Invalid ECDSA signature");
          nttpk = Core.GetPublicKey(authorized_PQPublicKey);
          require(Core.verify(abi.encodePacked(digest), salt, s2, nttpk), "Invalid FALCON");
 
@@ -152,18 +120,6 @@ contract ZKNOX_HybridVerifier {
         }
     
 
-
-    //debug function for now: todo, remove when transact successfully tested
-    function verify(
-        bytes memory data,
-        bytes memory salt, // compacted signature salt part
-        uint256[] memory s2
-    ) public view returns (bool) {
-        ISigVerifier Core = ISigVerifier(CoreAddress);
-        uint256[] memory nttpk;
-        nttpk = Core.GetPublicKey(authorized_PQPublicKey);
-        return Core.verify(data, salt, s2, nttpk);
-    }
 
     function GetPublicKey() public view returns (uint256[] memory res) {
         ISigVerifier Core = ISigVerifier(CoreAddress);
