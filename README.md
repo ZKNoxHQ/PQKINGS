@@ -30,7 +30,7 @@ Our unique demonstration at ETHPRAGUE turns everyday **wristbands** into secure 
 Attendees will witness:
 
   * **Wristband-as-Signer:** How ETHPRAGUE wristbands, powered by ARX chips, function as direct Ethereum transaction signers.
-  * **Post-Quantum Resilience:** The integration of a **FALCON512 Post-Quantum signer** within a **7702 Smart Account**, showcasing practical quantum resistance.
+  * **Post-Quantum Resilience:** The signature is transmitted to the wallet, which hybridates the signature with a **FALCON512 Post-Quantum signer** within a **7702 Smart Account**, showcasing practical quantum resistance.
   * **Hybrid Security:** A practical implementation of a hybrid account protecting funds with both legacy (ECDSA) and post-quantum cryptography.
 
 -----
