@@ -52,9 +52,9 @@ contract ZKNOX_Verifier {
     /// @notice Internal nonce used for replay protection, must be tracked and included into prehashed message.
     uint256 public nonce;
 
-    //input are AlgoIdentifier, Signature verification address, publickey storing contract
     constructor() {}
-
+    
+    //input are AlgoIdentifier, Signature verification address, publickey storing contract
     function initialize(uint256 iAlgoID, address iCore, address iPublicKey) external {
         require(CoreAddress == address(0), "already initialized");
         CoreAddress = iCore; // Address of contract of Signature verification (FALCON, DILITHIUM)
@@ -77,7 +77,8 @@ contract ZKNOX_Verifier {
         uint256[] memory nttpk;
         require(authorizedPublicKey != address(0), "authorizedPublicKey null");
 
-        //nttpk = Core.GetPublicKey(authorizedPublicKey);
+        nttpk = Core.GetPublicKey(authorizedPublicKey);
+        require(nttpk[0]!=0, "wrong extraction");
         //require(Core.verify(abi.encodePacked(digest), salt, s2, nttpk), "Invalid signature");
 
         (bool success,) = to.call{value: val}(data);
@@ -86,11 +87,11 @@ contract ZKNOX_Verifier {
     }
 
     //debug function for now: todo, remove when transact successfully tested
-    function verify(
+    function isValid(
         bytes memory data,
         bytes memory salt, // compacted signature salt part
         uint256[] memory s2
-    ) public view returns (bool) {
+    ) external payable returns (bool) {
         ISigVerifier Core = ISigVerifier(CoreAddress);
         uint256[] memory nttpk;
         nttpk = Core.GetPublicKey(authorizedPublicKey);

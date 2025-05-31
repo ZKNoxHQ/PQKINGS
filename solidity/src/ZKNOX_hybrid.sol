@@ -64,8 +64,13 @@ contract ZKNOX_HybridVerifier {
     /// @notice Internal nonce used for replay protection, must be tracked and included into prehashed message.
     uint256 public nonce;
 
+    constructor() {}
+    
     //input are AlgoIdentifier, Signature verification address, publickey storing contract
-    constructor(uint256 iAlgoID, address iCore, address iPublicPQKey) {
+    function initialize(uint256 iAlgoID, address iCore, address iAuthorized_ECDSA, address iPublicPQKey) external {
+        require(CoreAddress == address(0), "already initialized");
+       
+        authorized_ECDSA=iAuthorized_ECDSA;  //derived address from ecdsa secp256K1
         CoreAddress = iCore; // Address of contract of Signature verification (FALCON, DILITHIUM)
         algoID = iAlgoID;
         authorized_PQPublicKey = iPublicPQKey;
@@ -92,9 +97,9 @@ contract ZKNOX_HybridVerifier {
 
 
         require(authorized_PQPublicKey != address(0), "authorizedPublicKey null");
-        require(recovered==authorized_ECDSA, "Invalid ECDSA signature");
-        //nttpk = Core.GetPublicKey(authorized_PQPublicKey);
-        //require(Core.verify(abi.encodePacked(digest), salt, s2, nttpk), "Invalid FALCON");
+        //require(recovered==authorized_ECDSA, "Invalid ECDSA signature");
+        nttpk = Core.GetPublicKey(authorized_PQPublicKey);
+        require(Core.verify(abi.encodePacked(digest), salt, s2, nttpk), "Invalid FALCON");
 
         (bool success,) = to.call{value: val}(data);
 
@@ -120,7 +125,7 @@ contract ZKNOX_HybridVerifier {
 
 
          require(authorized_PQPublicKey != address(0), "authorizedPublicKey null");
-         require(recovered==authorized_ECDSA, "Invalid ECDSA signature");
+         //require(recovered==authorized_ECDSA, "Invalid ECDSA signature");
          nttpk = Core.GetPublicKey(authorized_PQPublicKey);
          require(Core.verify(abi.encodePacked(digest), salt, s2, nttpk), "Invalid FALCON");
 
