@@ -67,7 +67,7 @@ The JavaScript implementation of the FALCON algorithm, generated from NIST code 
 The core smart contracts are located in a fork of the `ZKNOX/ETHFALCON` repository.
 
   * **Repository:** This repository was forked specifically for the ETHPRAGUE hackathon.
-  * **Dedicated README:** For detailed setup and contract information, please refer to the [dedicated README in the `ZKNOX/ETHFALCON` fork](https://www.google.com/search?q=%5Bhttps://github.com/ZKNoxHQ/PQKINGS%5D\(https://github.com/ZKNoxHQ/PQKINGS\)).
+ 
 
 -----
 
