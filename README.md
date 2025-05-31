@@ -1,11 +1,13 @@
 # PQKINGS
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/9cc3feef-405e-4003-afbc-5d7730ff0326" alt="The PQ King" width="350"/>
+  <img src="(https://github.com/user-attachments/assets/9604a015-7487-4bd8-bee2-5ac7fa395432" alt="The PQ King" width="350"/>
 </p>
 <p align="center">
   <small>(The PQ KING)</small>
 </p>
+
+
 
 Got it, here's the improved README in Markdown format, ready for you to copy and paste:
 
