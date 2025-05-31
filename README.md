@@ -9,8 +9,6 @@
 
 
 
-Got it, here's the improved README in Markdown format, ready for you to copy and paste:
-
 -----
 
 # ETHPRAGUE 7702 Hybrid Account (Legacy + Post-Quantum)
