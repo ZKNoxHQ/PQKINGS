@@ -1,0 +1,41 @@
+.steps {
+  h2 {
+    color: $text;
+    text-transform: uppercase;
+    font-weight: 600;
+    font-size: 12px;
+    margin-bottom: 12px;
+  }
+}
+
+.steps-list {
+  padding: 16px;
+}
+
+.steps-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: $white;
+
+  & + & {
+    position: relative;
+    margin-top: 24px;
+  }
+
+  & + &:before {
+    content: '';
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='2' height='10' fill='none' viewBox='0 0 2 10'%3E%3Ccircle cx='1' cy='9' r='1' fill='%23505050'/%3E%3Ccircle cx='1' cy='5' r='1' fill='%23505050'/%3E%3Ccircle cx='1' cy='1' r='1' fill='%23505050'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center center;
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    height: 24px;
+    width: 24px;
+  }
+
+  span {
+    flex: 1;
+  }
+}

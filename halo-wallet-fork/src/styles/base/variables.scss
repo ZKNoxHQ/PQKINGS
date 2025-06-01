@@ -1,0 +1,24 @@
+// Colors
+$bg: #0c0c0c;
+$text: #fcfcfc;
+$inverseText: #0c0c0c;
+$white: #fcfcfc;
+$gray: #232323;
+$mediumGray: #505050;
+$lightGray: #9d9d9d;
+$xlightGray: #dcdcdc;
+$blue: #0047ff;
+$blueHover: #0040e1;
+
+$red: #fe0133;
+$green: #43a815;
+
+// Fonts
+$font: 'Roobert', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell,
+  'Open Sans', 'Helvetica Neue', sans-serif;
+
+// Transitions
+$fadeOffR: right 0s 0.25s, top 0s 0.25s, opacity 0.25s;
+$fadeOnR: right 0s, top 0s, opacity 0.25s;
+$fadeOff: left 0s 0.25s, top 0s 0.25s, opacity 0.25s;
+$fadeOn: left 0s, top 0s, opacity 0.25s;

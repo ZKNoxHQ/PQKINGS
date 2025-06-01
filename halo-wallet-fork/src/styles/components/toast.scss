@@ -1,0 +1,28 @@
+.toast {
+  line-height: 1;
+  padding: 12px;
+  font-size: 14px;
+  border-radius: 4px;
+  align-self: center;
+  transform: translate(-50%, 20px) scale(0.9);
+  opacity: 0;
+  transition: 0.2s transform, 0.2s opacity;
+  position: absolute;
+  top: 100px;
+  left: 50%;
+
+  &--active {
+    opacity: 1;
+    transform: translateX(-50%);
+  }
+
+  &--success {
+    background: $green;
+    color: $text;
+  }
+
+  &--error {
+    background: $red;
+    color: $inverseText;
+  }
+}

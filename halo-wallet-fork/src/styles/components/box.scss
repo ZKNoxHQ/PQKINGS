@@ -1,0 +1,28 @@
+.box {
+  padding: 24px;
+  background: $gray;
+  color: $white;
+  border-radius: 24px;
+
+  &--extra-padding-top {
+    padding-top: 72px;
+  }
+
+  &--no-padding {
+    padding: 0px;
+  }
+
+  &--blue {
+    background: $blue;
+  }
+
+  &--red {
+    background: $red;
+    color: $inverseText;
+  }
+
+  &--green {
+    background: $green;
+    color: $inverseText;
+  }
+}

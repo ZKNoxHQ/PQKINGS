@@ -1,0 +1,89 @@
+@keyframes waitingRingGrow {
+  0% {
+    width: 66px;
+    height: 66px;
+    opacity: 0;
+  }
+
+  20% {
+    opacity: 0.2;
+  }
+
+  65% {
+    opacity: 0.2;
+  }
+
+  100% {
+    opacity: 0;
+    width: 120px;
+    height: 120px;
+  }
+}
+
+.waiting {
+  text-align: center;
+
+  &--space-top {
+    padding-top: 120px;
+  }
+
+  &--red {
+    color: $red;
+  }
+
+  &--blue {
+    color: $blue;
+  }
+
+  &--green {
+    color: $green;
+  }
+}
+
+.waiting {
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.waiting-x {
+  width: 60px;
+  height: 60px;
+  position: relative;
+  margin: 0 auto 32px;
+
+  img,
+  svg {
+    z-index: 2;
+    position: relative;
+  }
+
+  &:before,
+  &:after {
+    z-index: 1;
+    content: '';
+    width: 40px;
+    height: 40px;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    opacity: 0.3;
+    transform: translate(-50%, -50%);
+    animation: 3s waitingRingGrow infinite linear;
+  }
+
+  &:after {
+    animation-delay: 1.5s;
+  }
+}
+
+.waiting-text {
+  font-size: 14px;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: $mediumGray;
+}

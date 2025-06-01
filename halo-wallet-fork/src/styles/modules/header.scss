@@ -1,0 +1,91 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  padding: 16px;
+  border-radius: 8px;
+  background: $gray;
+  z-index: 10;
+  height: 64px;
+}
+
+.header-menu {
+  position: relative;
+  z-index: 10;
+}
+
+.header-dropdown-toggle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $mediumGray;
+  color: $lightGray;
+  transition: 0.2s color, 0.2s background-color;
+
+  &:hover,
+  .header-menu--active & {
+    color: $inverseText;
+    background: $white;
+  }
+}
+
+.header-dropdown {
+  width: 100%;
+  background: $gray;
+  position: absolute;
+  top: 100%;
+  left: -9999px;
+  opacity: 0;
+  margin-top: -8px;
+  transition: $fadeOff;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+
+  box-shadow: 0px 4px 6px 0px rgba(0, 0, 0, 0.1);
+
+  &--active {
+    left: 0;
+    opacity: 1;
+    transition: $fadeOn;
+  }
+}
+
+.header-dropdown-divider {
+  display: block;
+  height: 1px;
+  background: $mediumGray;
+  width: calc(100% - 32px);
+  margin: 0 auto;
+}
+
+.header-dropdown-option {
+  & + & {
+    border-top: 1px solid $xlightGray;
+  }
+
+  input {
+    display: none;
+  }
+
+  label {
+    display: block;
+    font-size: 16px;
+    padding: 16px;
+    color: $lightGray;
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+  }
+
+  input:checked + label,
+  label:hover {
+    color: $text;
+  }
+
+  input:checked + label {
+    background-image: url("data:image/svg+xml,%3Csvg width='13' height='10' viewBox='0 0 13 10' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6.00104 9.99893C5.74104 9.99893 5.48104 9.89893 5.29104 9.70893L1.29104 5.70893C0.901035 5.31893 0.901035 4.68893 1.29104 4.29893C1.68104 3.90893 2.31104 3.90893 2.70104 4.29893L5.88104 7.47893L11.201 0.398932C11.531 -0.0410682 12.161 -0.131068 12.601 0.198932C13.041 0.528932 13.131 1.15893 12.801 1.59893L6.80104 9.59893C6.63104 9.82893 6.36104 9.97893 6.07104 9.99893C6.05104 9.99893 6.02104 9.99893 6.00104 9.99893Z' fill='%23ffffff'/%3E%3C/svg%3E%0A");
+  }
+}

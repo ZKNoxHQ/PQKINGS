@@ -1,0 +1,15 @@
+{
+  "short_name": "HaLo Wallet",
+  "name": "HaLo Wallet",
+  "icons": [
+    {
+      "src": "favicon.png",
+      "sizes": "64x64",
+      "type": "image/x-icon"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#ffffff",
+  "background_color": "#000000"
+}
