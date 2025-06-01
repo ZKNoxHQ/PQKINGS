@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@arx-research/libhalo": "../libhalo",
+    "@arx-research/libhalo": "^1.11.0",
     "@json-rpc-tools/utils": "^1.7.6",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
@@ -14,7 +14,8 @@
     "buffer": "^6.0.3",
     "classnames": "^2.3.2",
     "crypto-browserify": "^3.12.0",
-    "ethers": "^6.12.1",
+    "ethers": "^6.14.3",
+    "permissionless": "^0.2.47",
     "process": "^0.11.10",
     "query-string": "^8.1.0",
     "react": "^18.2.0",
@@ -24,12 +25,14 @@
     "react-router-dom": "^6.14.2",
     "react-scripts": "5.0.1",
     "sass": "^1.64.1",
+    "serve": "^14.2.4",
     "stream-browserify": "^3.0.0",
+    "viem": "^2.30.5",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
     "start": "react-app-rewired start",
-    "build": "react-app-rewired build",
+    "build": "DISABLE_ESLINT_PLUGIN=true react-app-rewired build",
     "test": "react-app-rewired test",
     "eject": "react-app-rewired eject"
   },
@@ -42,6 +45,8 @@
   "browserslist": {
     "production": [
       ">0.2%",
+      "not ie <= 99",
+      "not android <= 4.4.4",
       "not dead",
       "not op_mini all"
     ],
@@ -52,6 +57,7 @@
     ]
   },
   "devDependencies": {
+    "exports-loader": "^5.0.0",
     "react-app-rewired": "^2.2.1",
     "typescript": "^5.1.6"
   }

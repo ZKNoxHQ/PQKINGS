@@ -2,6 +2,7 @@ import './style.scss';
 import 'react-json-pretty/themes/monikai.css';
 
 import {useCallback, useEffect, useState} from "react";
+import PrePairing from "./sub/PrePairing";
 import ScanWeb3ModalQR from "./sub/ScanWeb3ModalQR";
 import {wcCreate, wcGetPairings, wcPair, web3wallet} from "./sub/WalletConnect";
 import SessionProposal from "./sub/SessionProposal";
@@ -10,9 +11,11 @@ import Header from "./sub/Header.tsx";
 import Wrapper from "./sub/Wrapper.tsx";
 import ListPairings from "./sub/ListPairings";
 
+
 function App() {
   let [appState, setAppState] = useState({name: "init"});
   let [haloAddress, setHaloAddress] = useState(null);
+  let [haloCode, setHaloCode] = useState(null);
 
   console.log('appState', appState);
 
@@ -21,10 +24,17 @@ function App() {
     setHaloAddress(addr);
   }
 
+  function updateHaloCode(code) {
+    window.localStorage.setItem('haloCode', code);
+    setHaloCode(code);
+  }
+
   function postResetWallet() {
     window.localStorage.removeItem('haloAddress');
+    window.localStorage.removeItem('haloCode');
     setHaloAddress(null);
-    setAppState({"name": "pairing"});
+    setHaloCode(null);
+    setAppState({"name": "pre_pairing"});
   }
 
   function switchToMainScreen() {
@@ -39,7 +49,7 @@ function App() {
     } else if (hasAnyPairings) {
       setAppState({"name": "paired"});
     } else {
-      setAppState({"name": "pairing"});
+      setAppState({"name": "pre_pairing"});
     }
   }
 
@@ -69,7 +79,7 @@ function App() {
 
     setAppState(prevAppState => {
       if (!hasAnyPairings) {
-        return {"name": "pairing"};
+        return {"name": "pre_pairing"};
       } else if (prevAppState.name === "paired") {
         // force re-render
         return {"name": "paired"};
@@ -99,6 +109,11 @@ function App() {
       setHaloAddress(addr);
     }
 
+    let code = window.localStorage.getItem('haloCode');
+    if (code) {
+      setHaloCode(code);
+    }
+
     initializeWalletConnect();
   }, [onSessionDelete, onSessionProposal, onSessionRequest]);
 
@@ -110,7 +125,7 @@ function App() {
         });
       } catch (e) {
         alert(e.toString());
-        setAppState({name: "pairing"});
+        setAppState({name: "pre_pairing"});
       }
     }
 
@@ -123,6 +138,15 @@ function App() {
     switch (appState.name) {
       case "init":
         return <p>Initializing...</p>;
+      case "pre_pairing":        
+        return <PrePairing
+            haloAddress={haloAddress}
+            haloCode={haloCode}
+            onGetHalo={(addr) => updateHaloAddress(addr)}
+            onGetHaloCode={(code) => updateHaloCode(code)}
+            onStartPairing={() => setAppState({"name": "pairing"})}
+            onResetWallet={() => postResetWallet()}
+        />; 
       case "pairing":
         return <ScanWeb3ModalQR
             onScan={(pairURI) => setAppState({name: "do_pair", pairURI})}

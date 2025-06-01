@@ -64,7 +64,8 @@ export const EIP155_TEST_CHAINS = {
         name: 'Ethereum Sepolia',
         logo: '/chain-logos/eip155-1.png',
         rgb: '99, 125, 234',
-        rpc: 'https://sepolia.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161'
+        //rpc: 'https://sepolia.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161'
+        rpc : 'https://ethereum-sepolia-rpc.publicnode.com'
     },
     'eip155:43113': {
         chainId: 43113,

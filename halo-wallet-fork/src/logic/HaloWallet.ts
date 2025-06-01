@@ -7,7 +7,7 @@ import {keccak256} from "@ethersproject/keccak256";
 import {Deferrable, defineReadOnly, resolveProperties} from "@ethersproject/properties";
 import {serialize, UnsignedTransaction} from "@ethersproject/transactions";
 import {BytesLike, computeAddress, isAddress} from "ethers";
-import {execHaloCmdWeb} from '@arx-research/libhalo/api/web.js';
+import {execHaloCmdWeb} from '@arx-research/libhalo/api/web';
 
 export class HaloWallet extends Signer implements TypedDataSigner {
     readonly address: string;

@@ -1,5 +1,5 @@
 import { buildApprovedNamespaces } from "@walletconnect/utils";
-import {execHaloCmdWeb} from '@arx-research/libhalo/api/web.js';
+import {execHaloCmdWeb} from '@arx-research/libhalo/api/web';
 import {wcApproveSession, wcDenySession} from "./WalletConnect";
 import {computeAddress} from "ethers";
 import Button from "./Button.tsx";
