@@ -100,6 +100,7 @@ The system implements a dual-signature scheme where transactions require both tr
 ### **Hardware Integration Layer**
 The hardware layer consists of ETHPRAGUE wristbands containing ARX chips that generate ECDSA signatures. Communication occurs through NFC using the HALO library ecosystem.
 
+![overviewPQ.png](@overviewPQ.png)
 
 ### **Transaction Flow Architecture**
 The complete transaction flow demonstrates how hardware signatures, software signatures, and on-chain verification coordinate to create a quantum-resistant transaction system.
